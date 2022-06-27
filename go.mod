@@ -1,4 +1,4 @@
-module consuming-kubernetes-api
+module list-k8s-resources
 
 go 1.17
 
