@@ -62,6 +62,11 @@ func listResources(rs string) string {
 		for _, node := range nodes.Items {
 			resources = append(resources, node.Name)
 		}
+	case "statefulsets":
+		statefulsets, _ := clientset.AppsV1().StatefulSets("").List(ctx, metav1.ListOptions{})
+		for _, sts := range statefulsets.Items {
+			resources = append(resources, sts.Name)
+		}
 	}
 
 	return rs
