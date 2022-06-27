@@ -5,16 +5,27 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-var resources []string
+var (
+	resources []string
+	resource  = flag.String("resource", "", "Enter the resource type")
+)
 
 func main() {
-	listResources("pods")
+	flag.Parse()
+	if *resource == "" {
+		fmt.Fprintln(os.Stderr, "Resource not found")
+		flag.Usage()
+		os.Exit(2)
+	}
+
+	listResources(*resource)
 	for index := range resources {
 		fmt.Println(resources[index])
 	}
@@ -35,24 +46,21 @@ func listResources(rs string) string {
 
 	ctx := context.Background()
 
-	if rs == "pods" {
+	switch rs {
+	case "pods":
 		pods, _ := clientset.CoreV1().Pods("").List(ctx, metav1.ListOptions{})
 		for _, pod := range pods.Items {
 			resources = append(resources, pod.Name)
 		}
-	}
-
-	if rs == "nodes" {
-		nodes, _ := clientset.CoreV1().Nodes().List(ctx, metav1.ListOptions{})
-		for _, node := range nodes.Items {
-			resources = append(resources, node.Name)
-		}
-	}
-
-	if rs == "deployments" {
+	case "deployments":
 		deploy, _ := clientset.AppsV1().Deployments("").List(ctx, metav1.ListOptions{})
 		for _, deploy := range deploy.Items {
 			resources = append(resources, deploy.Name)
+		}
+	case "nodes":
+		nodes, _ := clientset.CoreV1().Nodes().List(ctx, metav1.ListOptions{})
+		for _, node := range nodes.Items {
+			resources = append(resources, node.Name)
 		}
 	}
 
