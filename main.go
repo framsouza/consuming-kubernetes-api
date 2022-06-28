@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -33,8 +34,8 @@ func main() {
 }
 
 func listResources(rs string) string {
-	kubeconfig := flag.String("kubeconfig", "/Users/francismarasouza/.kube/config", "file localtion")
-	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+	kubeconfig := filepath.Join(os.Getenv("HOME"), ".kube", "config")
+	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
 	if err != nil {
 		log.Fatal(err)
 	}
